@@ -18,7 +18,7 @@ import java.util.UUID;
 public class PhotoServiceImpl implements PhotoService {
 
     private final PhotoRepository repository;
-    private final String uploadDir = "uploads";
+    private final String uploadDir = "/mnt/data/uploads"; // Cambiado para Render
 
     @Override
     public Photo save(MultipartFile file) {
@@ -30,10 +30,9 @@ public class PhotoServiceImpl implements PhotoService {
 
             String url = "/uploads/" + fileName;
 
-            Photo photo = Photo.builder()
-                    .filename(fileName)
-                    .url(url)
-                    .build();
+            Photo photo = new Photo();
+            photo.setFilename(fileName);
+            photo.setUrl(url);
 
             return repository.save(photo);
         } catch (IOException e) {
@@ -54,7 +53,7 @@ public class PhotoServiceImpl implements PhotoService {
     @Override
     public void delete(Long id) {
         repository.findById(id).ifPresent(photo -> {
-            Path path = Paths.get(uploadDir, photo.getFilename()); 
+            Path path = Paths.get(uploadDir, photo.getFilename());
             try {
                 Files.deleteIfExists(path);
             } catch (IOException ignored) {
