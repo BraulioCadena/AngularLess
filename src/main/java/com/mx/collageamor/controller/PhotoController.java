@@ -32,10 +32,14 @@ private final PhotoService service;
         try {
             Path path = Paths.get("uploads", filename);
             Resource resource = new UrlResource(path.toUri());
-            if (!resource.exists()) throw new FileNotFoundException("Archivo no encontrado");
 
+            if (!resource.exists()) {
+                throw new FileNotFoundException("Archivo no encontrado");
+            }
+
+            String contentType = Files.probeContentType(path);
             return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_JPEG)
+                    .contentType(MediaType.parseMediaType(contentType))
                     .body(resource);
 
         } catch (Exception e) {
