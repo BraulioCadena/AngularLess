@@ -19,11 +19,12 @@ public class PhotoServiceImpl implements PhotoService {
 
     private final PhotoRepository repository;
     private final String uploadDir = "/mnt/data/uploads"; // ruta persistente en Render
-    private final String backendUrl = "https://collageamor-backend.onrender.com"; // cámbiala si usas otro dominio
+    private final String backendUrl = "https://collageamor-backend.onrender.com"; // asegúrate de que sea tu dominio real
 
     @Override
     public Photo save(MultipartFile file) {
         try {
+            // Crear nombre único para la imagen
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
             Path path = Paths.get(uploadDir).resolve(fileName);
             Files.createDirectories(path.getParent());
@@ -31,8 +32,11 @@ public class PhotoServiceImpl implements PhotoService {
             System.out.println("📥 Guardando archivo en: " + path.toAbsolutePath());
 
             long copiedBytes = Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-            if (copiedBytes == 0) throw new IOException("Archivo vacío. No se copió nada.");
+            if (copiedBytes == 0) {
+                throw new IOException("Archivo vacío. No se copió nada.");
+            }
 
+            // URL absoluta para que Netlify pueda cargarla sin fallar
             String fullUrl = backendUrl + "/api/photos/download/" + fileName;
             System.out.println("📸 Imagen disponible en: " + fullUrl);
 
@@ -44,7 +48,7 @@ public class PhotoServiceImpl implements PhotoService {
 
         } catch (IOException e) {
             System.err.println("❌ Error al guardar imagen: " + e.getMessage());
-            throw new RuntimeException("Error al guardar imagen", e);
+            throw new RuntimeException("Error al guardar la imagen", e);
         }
     }
 
