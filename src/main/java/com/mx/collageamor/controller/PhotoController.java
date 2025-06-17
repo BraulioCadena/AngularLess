@@ -62,8 +62,9 @@ public class PhotoController {
     // 🔍 Ruta auxiliar para ver qué archivos hay en /mnt/data/uploads
     @GetMapping("/debug/files")
     public List<String> listFiles() {
-        File folder = new File(uploadDir);
+        File folder = new File("/mnt/data/uploads");
         String[] files = folder.list();
         return files != null ? Arrays.asList(files) : Collections.emptyList();
     }
+
 }
