@@ -18,8 +18,8 @@ import java.util.UUID;
 public class PhotoServiceImpl implements PhotoService {
 
     private final PhotoRepository repository;
-    private final String uploadDir = "/mnt/data/uploads"; // Ruta persistente para Render
-    private final String backendUrl = "https://collageamor-backend.onrender.com"; // Cambia esto si tu subdominio es diferente
+    private final String uploadDir = "/mnt/data/uploads"; // ruta persistente en Render
+    private final String backendUrl = "https://collageamor-backend.onrender.com"; // cámbiala si usas otro dominio
 
     @Override
     public Photo save(MultipartFile file) {
@@ -28,24 +28,23 @@ public class PhotoServiceImpl implements PhotoService {
             Path path = Paths.get(uploadDir).resolve(fileName);
             Files.createDirectories(path.getParent());
 
-            System.out.println("✅ Ruta esperada → " + path.toAbsolutePath());
+            System.out.println("📥 Guardando archivo en: " + path.toAbsolutePath());
+
             long copiedBytes = Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+            if (copiedBytes == 0) throw new IOException("Archivo vacío. No se copió nada.");
 
-            if (copiedBytes == 0) {
-                throw new IOException("⚠️ No se copió el archivo. Tamaño 0 bytes.");
-            }
-
-            System.out.println("📸 Foto guardada: " + fileName);
+            String fullUrl = backendUrl + "/api/photos/download/" + fileName;
+            System.out.println("📸 Imagen disponible en: " + fullUrl);
 
             Photo photo = new Photo();
             photo.setFilename(fileName);
-            photo.setUrl(backendUrl + "/api/photos/download/" + fileName);
+            photo.setUrl(fullUrl);
 
             return repository.save(photo);
 
         } catch (IOException e) {
             System.err.println("❌ Error al guardar imagen: " + e.getMessage());
-            throw new RuntimeException("Error al guardar la imagen", e);
+            throw new RuntimeException("Error al guardar imagen", e);
         }
     }
 

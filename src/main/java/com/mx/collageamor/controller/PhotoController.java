@@ -35,22 +35,23 @@ public class PhotoController {
     public ResponseEntity<Resource> download(@PathVariable String filename) {
         try {
             Path path = Paths.get(uploadDir, filename);
+            System.out.println("🔍 Buscando archivo: " + path.toAbsolutePath());
+
+            if (!Files.exists(path)) {
+                System.out.println("🚫 No encontrado: " + path.toAbsolutePath());
+                return ResponseEntity.notFound().build();
+            }
+
             Resource resource = new UrlResource(path.toUri());
-
-            if (!resource.exists()) {
-                throw new FileNotFoundException("Archivo no encontrado");
-            }
-
             String contentType = Files.probeContentType(path);
-            if (contentType == null) {
-                contentType = "application/octet-stream";
-            }
+            if (contentType == null) contentType = "application/octet-stream";
 
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(contentType))
                     .body(resource);
 
         } catch (Exception e) {
+            System.err.println("❌ Error al descargar imagen: " + e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
