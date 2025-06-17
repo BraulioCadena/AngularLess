@@ -1,4 +1,5 @@
 package com.mx.collageamor.controller;
+
 import com.mx.collageamor.entity.Photo;
 import com.mx.collageamor.service.PhotoService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,10 @@ import java.util.List;
 @RequestMapping("/api/photos")
 @RequiredArgsConstructor
 public class PhotoController {
-private final PhotoService service;
+
+    private final PhotoService service;
+    private final String uploadDir = "/mnt/data/uploads";
+
     @PostMapping("/upload")
     public Photo upload(@RequestParam("file") MultipartFile file) {
         return service.save(file);
@@ -28,9 +32,9 @@ private final PhotoService service;
     }
 
     @GetMapping("/download/{filename}")
-    public ResponseEntity<Resource> download(@PathVariable String fileName) {
+    public ResponseEntity<Resource> download(@PathVariable String filename) {
         try {
-            Path path = Paths.get("uploads", fileName);
+            Path path = Paths.get(uploadDir, filename);
             Resource resource = new UrlResource(path.toUri());
 
             if (!resource.exists()) {
@@ -38,6 +42,10 @@ private final PhotoService service;
             }
 
             String contentType = Files.probeContentType(path);
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(contentType))
                     .body(resource);
@@ -51,5 +59,4 @@ private final PhotoService service;
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
-    
 }

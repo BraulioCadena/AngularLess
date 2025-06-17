@@ -3,7 +3,6 @@ package com.mx.collageamor.service.impl;
 import com.mx.collageamor.entity.Photo;
 import com.mx.collageamor.repository.PhotoRepository;
 import com.mx.collageamor.service.PhotoService;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +19,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     private final PhotoRepository repository;
     private final String uploadDir = "/mnt/data/uploads"; // Ruta persistente para Render
+    private final String backendUrl = "https://collageamor-backend.onrender.com"; // Cambia esto si tu subdominio es diferente
 
     @Override
     public Photo save(MultipartFile file) {
@@ -28,21 +28,18 @@ public class PhotoServiceImpl implements PhotoService {
             Path path = Paths.get(uploadDir).resolve(fileName);
             Files.createDirectories(path.getParent());
 
-            System.out.println("✅ Paso 1: Ruta esperada → " + path.toAbsolutePath());
+            System.out.println("✅ Ruta esperada → " + path.toAbsolutePath());
             long copiedBytes = Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
 
             if (copiedBytes == 0) {
                 throw new IOException("⚠️ No se copió el archivo. Tamaño 0 bytes.");
             }
 
-            System.out.println("✅ Paso 2: Copiado con éxito (" + copiedBytes + " bytes)");
-            System.out.println("📸 Foto registrada: " + fileName);
-
-            String url = "/uploads/" + fileName;
+            System.out.println("📸 Foto guardada: " + fileName);
 
             Photo photo = new Photo();
             photo.setFilename(fileName);
-            photo.setUrl(url);
+            photo.setUrl(backendUrl + "/api/photos/download/" + fileName);
 
             return repository.save(photo);
 
