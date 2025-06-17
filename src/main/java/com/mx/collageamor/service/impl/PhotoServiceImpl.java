@@ -35,16 +35,16 @@ public class PhotoServiceImpl implements PhotoService {
             long copiedBytes = Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
             if (copiedBytes == 0) throw new IOException("Archivo vacío, no se copió nada.");
 
-            String fullUrl = backendUrl + "/api/photos/download/" + fileName;
-            log.info("📸 Foto guardada en {} y disponible en {}", path.toAbsolutePath(), fullUrl);
+            // 🟩 Aquí colocas esa línea
+            String fullUrl = "https://collageamor-backend.onrender.com/api/photos/download/" + fileName;
 
             Photo photo = new Photo();
             photo.setFilename(fileName);
-            photo.setUrl(fullUrl);
+            photo.setUrl(fullUrl); // <-- AQUÍ VA ESTA LÍNEA
+
             return repository.save(photo);
 
         } catch (IOException e) {
-            log.error("❌ Error al guardar imagen: {}", e.getMessage());
             throw new RuntimeException("Error al guardar la imagen", e);
         }
     }
