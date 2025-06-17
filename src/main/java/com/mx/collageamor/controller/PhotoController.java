@@ -66,5 +66,10 @@ public class PhotoController {
         String[] files = folder.list();
         return files != null ? Arrays.asList(files) : Collections.emptyList();
     }
+    @GetMapping("/debug/ping")
+    public String ping() {
+        return "🟢 Backend vivo y funcional";
+    }
+
 
 }
