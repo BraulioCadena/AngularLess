@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.List;
+import java.util.*;
 
 @CrossOrigin(origins = "https://collagelessx.netlify.app")
 @RestController
@@ -35,10 +35,8 @@ public class PhotoController {
     public ResponseEntity<Resource> download(@PathVariable String filename) {
         try {
             Path path = Paths.get(uploadDir, filename);
-            System.out.println("🔍 Buscando archivo: " + path.toAbsolutePath());
-
             if (!Files.exists(path)) {
-                System.out.println("🚫 No encontrado: " + path.toAbsolutePath());
+                System.out.println("🚫 Archivo no encontrado en: " + path.toAbsolutePath());
                 return ResponseEntity.notFound().build();
             }
 
@@ -51,13 +49,21 @@ public class PhotoController {
                     .body(resource);
 
         } catch (Exception e) {
-            System.err.println("❌ Error al descargar imagen: " + e.getMessage());
-            return ResponseEntity.notFound().build();
+            System.err.println("❌ Error al servir imagen: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         service.delete(id);
+    }
+
+    // 🔍 Ruta auxiliar para ver qué archivos hay en /mnt/data/uploads
+    @GetMapping("/debug/files")
+    public List<String> listFiles() {
+        File folder = new File(uploadDir);
+        String[] files = folder.list();
+        return files != null ? Arrays.asList(files) : Collections.emptyList();
     }
 }
