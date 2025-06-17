@@ -11,14 +11,12 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.List;
 
+@CrossOrigin(origins = "https://collagelessx.netlify.app")
 @RestController
 @RequestMapping("/api/photos")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class PhotoController {
-
-    private final PhotoService service;
-
+private final PhotoService service;
     @PostMapping("/upload")
     public Photo upload(@RequestParam("file") MultipartFile file) {
         return service.save(file);
