@@ -22,19 +22,25 @@ public class PhotoService {
             String originalFilename = file.getOriginalFilename();
             String savedFileName = UUID.randomUUID() + "_" + originalFilename;
 
-            Path uploadPath = Paths.get("uploads");
+            // Usamos ruta relativa al directorio actual
+            Path uploadPath = Paths.get(System.getProperty("user.dir"), "uploads");
+
             if (Files.notExists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
             Path filePath = uploadPath.resolve(savedFileName);
+
+            System.out.println("📍 Guardando imagen en: " + filePath.toAbsolutePath()); // 👈 output útil para Render
+
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
             Photo photo = new Photo();
             photo.setFilename(savedFileName);
-            photo.setUrl("/api/photos/download/" + savedFileName); // 👈 esta es la clave
+            photo.setUrl("/api/photos/download/" + savedFileName);
 
             return photoRepository.save(photo);
+
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar la imagen", e);
         }
