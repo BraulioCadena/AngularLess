@@ -28,9 +28,9 @@ private final PhotoService service;
     }
 
     @GetMapping("/download/{filename}")
-    public ResponseEntity<Resource> download(@PathVariable String filename) {
+    public ResponseEntity<Resource> download(@PathVariable String fileName) {
         try {
-            Path path = Paths.get("uploads", filename);
+            Path path = Paths.get("uploads", fileName);
             Resource resource = new UrlResource(path.toUri());
 
             if (!resource.exists()) {
