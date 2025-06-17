@@ -34,15 +34,18 @@ public class PhotoService {
             System.out.println("✅ Paso 1: Generando ruta para archivo...");
             System.out.println("📍 Ruta final esperada: " + filePath.toAbsolutePath());
 
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            long copiedBytes = Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            System.out.println("✅ Paso 2: Archivo copiado correctamente");
+            if (copiedBytes == 0) {
+                throw new IOException("⚠️ No se copió el archivo, tamaño cero.");
+            }
+
+            System.out.println("✅ Paso 2: Archivo copiado correctamente, " + copiedBytes + " bytes");
+            System.out.println("📸 Foto registrada: " + savedFileName);
 
             Photo photo = new Photo();
             photo.setFilename(savedFileName);
             photo.setUrl("/api/photos/download/" + savedFileName);
-
-            System.out.println("📸 Foto registrada: " + photo.getFilename());
 
             return photoRepository.save(photo);
 
