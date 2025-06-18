@@ -4,26 +4,19 @@ import com.mx.collageamor.entity.Photo;
 import com.mx.collageamor.repository.PhotoRepository;
 import com.mx.collageamor.service.PhotoService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.*;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class PhotoServiceImpl implements PhotoService {
 
-    private static final Logger log = LoggerFactory.getLogger(PhotoServiceImpl.class);
-
     private final PhotoRepository repository;
     private final String uploadDir = "/mnt/data/uploads";
-    private final String backendUrl = "https://collageamor-backend.onrender.com";
 
     @Override
     public Photo save(MultipartFile file) {
@@ -33,19 +26,20 @@ public class PhotoServiceImpl implements PhotoService {
             Files.createDirectories(path.getParent());
 
             long copiedBytes = Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-            if (copiedBytes == 0) throw new IOException("Archivo vacío, no se copió nada.");
+            if (copiedBytes == 0) throw new IOException("Archivo vacío");
 
-            // 🟩 Aquí colocas esa línea
-            String fullUrl = "https://collageamor-backend.onrender.com/api/photos/download/" + fileName;
+            String fullUrl = "https://angularlessbcakend.onrender.com/api/photos/download/" + fileName;
 
             Photo photo = new Photo();
             photo.setFilename(fileName);
-            photo.setUrl(fullUrl); // <-- AQUÍ VA ESTA LÍNEA
+            photo.setUrl(fullUrl);
 
+            System.out.println("✅ Guardado: " + path.toAbsolutePath());
             return repository.save(photo);
 
         } catch (IOException e) {
-            throw new RuntimeException("Error al guardar la imagen", e);
+            System.err.println("❌ Error al guardar imagen: " + e.getMessage());
+            throw new RuntimeException("Error al guardar imagen", e);
         }
     }
 
@@ -65,9 +59,9 @@ public class PhotoServiceImpl implements PhotoService {
             Path path = Paths.get(uploadDir, photo.getFilename());
             try {
                 Files.deleteIfExists(path);
-                log.info("🗑️ Archivo eliminado: {}", path.toAbsolutePath());
+                System.out.println("🗑️ Eliminado: " + path);
             } catch (IOException e) {
-                log.warn("⚠️ No se pudo eliminar archivo: {}", e.getMessage());
+                System.err.println("⚠️ No se pudo eliminar archivo: " + e.getMessage());
             }
             repository.delete(photo);
         });
