@@ -59,13 +59,13 @@ public class PhotoController {
         service.delete(id);
     }
 
-    // 🔍 Ruta auxiliar para ver qué archivos hay en /mnt/data/uploads
-    @GetMapping("/debug/files")
-    public List<String> listFiles() {
+    @GetMapping("/debug/files/raw")
+    public String rawFiles() {
         File folder = new File("/mnt/data/uploads");
         String[] files = folder.list();
-        return files != null ? Arrays.asList(files) : Collections.emptyList();
+        return files != null ? Arrays.toString(files) : "Nada";
     }
+
     @GetMapping("/debug/ping")
     public String ping() {
         return "🟢 Backend vivo y funcional";
