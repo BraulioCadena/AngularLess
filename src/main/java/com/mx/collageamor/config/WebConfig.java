@@ -1,6 +1,5 @@
 package com.mx.collageamor.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.*;
 
@@ -8,9 +7,10 @@ import org.springframework.web.servlet.config.annotation.*;
 public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
+        registry.addMapping("/**")
             .allowedOrigins("https://collagelessx.netlify.app")
-            .allowedMethods("GET", "POST", "DELETE", "PUT", "OPTIONS")
-            .allowedHeaders("*");
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .allowedHeaders("*")
+            .allowCredentials(false);
     }
 }
