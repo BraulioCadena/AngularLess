@@ -2,25 +2,13 @@ FROM eclipse-temurin:17-jdk-alpine AS build
 
 WORKDIR /app
 
-# Copia solo el script mvnw directamente al directorio de trabajo.
-# ELIMINA el comentario al final de la línea.
-COPY mvnw .
-
-# Copia toda la carpeta .mvn (incluyendo su contenido y subcarpetas).
-# ELIMINA el comentario al final de la línea.
-COPY .mvn .mvn/
-
-# Asegura que el script mvnw sea ejecutable
-RUN chmod +x mvnw
-
-# Copia el resto de tu código fuente (pom.xml, src, etc.)
-# Si tienes un .dockerignore bien configurado, puedes usar:
+# Copia todo el contenido del repositorio al WORKDIR.
+# Esto incluye mvnw y la carpeta .mvn
 COPY . .
-# O si quieres ser más explícito y no tienes un .dockerignore:
-# COPY pom.xml .
-# COPY src/ src/
-# etc.
-# La opción `COPY . .` es la más común y suele funcionar si no tienes archivos indeseados en la raíz.
+
+# Asegura que mvnw tenga permisos de ejecución.
+# Hacemos esto inmediatamente después de la copia de los archivos.
+RUN chmod +x mvnw
 
 # Ejecuta el comando de build
 RUN ./mvnw clean package -DskipTests
