@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
+@CrossOrigin(origins = "https://collagelessx.netlify.app/")
 @RestController
 @RequestMapping("/api/photos")
 @RequiredArgsConstructor
