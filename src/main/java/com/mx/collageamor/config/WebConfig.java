@@ -10,7 +10,6 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
             .allowedOrigins("https://collagelessx.netlify.app")
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-            .allowedHeaders("*")
-            .allowCredentials(false);
+            .allowedHeaders("*");
     }
 }

@@ -22,19 +22,22 @@ public class PhotoServiceImpl implements PhotoService {
     @Override
     public Photo save(MultipartFile file) {
         try {
+            // Subir imagen a Cloudinary
             Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
 
             String secureUrl = (String) uploadResult.get("secure_url");
             String originalFilename = (String) uploadResult.get("original_filename");
 
+            // Crear y guardar objeto Photo
             Photo photo = new Photo();
             photo.setFilename(originalFilename);
             photo.setUrl(secureUrl);
-            System.out.println("✅ Foto subida a Cloudinary: " + secureUrl);
+
+            System.out.println("✅ Imagen subida exitosamente a Cloudinary: " + secureUrl);
             return repository.save(photo);
 
         } catch (IOException e) {
-            System.err.println("❌ Error al subir a Cloudinary: " + e.getMessage());
+            System.err.println("❌ Error al subir imagen a Cloudinary: " + e.getMessage());
             throw new RuntimeException("Error al subir imagen", e);
         }
     }
@@ -52,6 +55,7 @@ public class PhotoServiceImpl implements PhotoService {
     @Override
     public void delete(Long id) {
         repository.findById(id).ifPresent(photo -> {
+            // Aquí podrías agregar lógica para borrar también de Cloudinary si lo deseas
             repository.delete(photo);
         });
     }
