@@ -2,31 +2,24 @@ FROM eclipse-temurin:17-jdk-alpine AS build
 
 WORKDIR /app
 
-# Paso 1: Copiar solo los scripts del Maven Wrapper
-# Esto asegura que mvnw y la carpeta .mvn estén disponibles y sean manejados individualmente.
-COPY mvnw .mvn/ /app/
+# Copia solo el script mvnw directamente al directorio de trabajo
+COPY mvnw . /app/  # Copia mvnw a /app/
 
-# Paso 2: ASEGURAR PERMISOS DE EJECUCIÓN INMEDIATAMENTE DESPUÉS DE LA COPIA
-# Aplica permisos de ejecución al script mvnw directamente.
-# Esta es la línea CRÍTICA para tu problema.
+# Copia toda la carpeta .mvn (incluyendo su contenido y subcarpetas)
+# Esto asegura que .mvn/wrapper/maven-wrapper.properties esté en /app/.mvn/wrapper/
+COPY .mvn /app/.mvn/
+
+# Asegura que el script mvnw sea ejecutable
 RUN chmod +x mvnw
 
-# Paso 3: Copiar el resto del código de la aplicación (excluyendo lo que ya copiamos)
-# Excluimos .mvn/ y mvnw porque ya los copiamos arriba y establecimos sus permisos.
-# Nota: Si tu .dockerignore no está configurado para ignorar estas copias redundantes,
-# el `COPY . .` original ya las incluía. Esta forma es más precisa.
-# Una forma de copiar todo lo demás (si no tienes .dockerignore complejo):
+# Copia el resto de tu código fuente (pom.xml, src, etc.)
+# Si ya tienes una estrategia de .dockerignore, puedes mantener `COPY . .` aquí.
+# Si no, sé explícito:
 COPY pom.xml /app/
 COPY src/ /app/src/
-# Si tienes otras carpetas en la raíz (ej. 'config', 'data'), añádelas aquí:
-# COPY <otra_carpeta>/ /app/<otra_carpeta>/
+# Y cualquier otra carpeta raíz de tu proyecto, como 'config/', 'static/', 'templates/' etc.
 
-# O, si no quieres listar todas las carpetas, y confías en tu .dockerignore,
-# puedes mantener un `COPY . .` aquí, pero el `chmod +x` debe estar antes
-# de la ejecución del `mvnw`.
-# La clave es que el chmod +x sea *después* de la copia del mvnw.
-
-# Ejecuta el comando de build
+# Ahora ejecuta el comando de build
 RUN ./mvnw clean package -DskipTests
 
 # Segunda etapa para la imagen final de ejecución
