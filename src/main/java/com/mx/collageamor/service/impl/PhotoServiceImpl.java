@@ -26,12 +26,14 @@ public class PhotoServiceImpl implements PhotoService {
             Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
 
             String secureUrl = (String) uploadResult.get("secure_url");
+            String publicId = (String) uploadResult.get("public_id"); // importante para borrar
             String originalFilename = (String) uploadResult.get("original_filename");
 
             // Crear y guardar objeto Photo
             Photo photo = new Photo();
             photo.setFilename(originalFilename);
             photo.setUrl(secureUrl);
+            photo.setPublicId(publicId); // 🔐 lo necesitas para eliminar después
 
             System.out.println("✅ Imagen subida exitosamente a Cloudinary: " + secureUrl);
             return repository.save(photo);
@@ -54,9 +56,23 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public void delete(Long id) {
-        repository.findById(id).ifPresent(photo -> {
-            // Aquí podrías agregar lógica para borrar también de Cloudinary si lo deseas
+        Optional<Photo> optionalPhoto = repository.findById(id);
+        if (optionalPhoto.isPresent()) {
+            Photo photo = optionalPhoto.get();
+
+            try {
+                if (photo.getPublicId() != null) {
+                    Map<?, ?> result = cloudinary.uploader().destroy(photo.getPublicId(), ObjectUtils.emptyMap());
+                    System.out.println("🗑 Imagen eliminada de Cloudinary: " + result);
+                }
+            } catch (IOException e) {
+                System.err.println("❌ Error al eliminar de Cloudinary: " + e.getMessage());
+            }
+
             repository.delete(photo);
-        });
+            System.out.println("🗑 Imagen eliminada de la base de datos.");
+        } else {
+            System.err.println("⚠️ No se encontró imagen con ID: " + id);
+        }
     }
 }

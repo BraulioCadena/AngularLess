@@ -20,6 +20,7 @@ public class Photo {
 
     private String filename;
     private String url;
+    private String publicId;
 
     public String getFilename() {
         return filename;
@@ -36,4 +37,12 @@ public class Photo {
     public void setUrl(String url) {
         this.url = url;
     }
+
+	public String getPublicId() {
+		return publicId;
+	}
+
+	public void setPublicId(String publicId) {
+		this.publicId = publicId;
+	}
 }
